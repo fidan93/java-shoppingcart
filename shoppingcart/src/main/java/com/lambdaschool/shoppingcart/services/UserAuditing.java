@@ -31,7 +31,7 @@ public class UserAuditing
         {
             uname = "SYSTEM";
         }
-        System.out.println(authentication.getName());
+
         return Optional.of(uname);
     }
 }

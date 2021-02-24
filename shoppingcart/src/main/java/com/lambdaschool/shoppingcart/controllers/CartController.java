@@ -31,30 +31,26 @@ public class CartController
             HttpStatus.OK);
     }
 
-    @PutMapping(value = "/add/user/{userid}/product/{productid}",
+    @PutMapping(value = "/add/user/product/{productid}",
         produces = {"application/json"})
     public ResponseEntity<?> addToCart(
         @PathVariable
-            long userid,
-        @PathVariable
             long productid)
     {
-        CartItem addCartTtem = cartItemService.addToCart(userid,
+        CartItem addCartTtem = cartItemService.addToCart(
             productid,
             "I am not working");
         return new ResponseEntity<>(addCartTtem,
             HttpStatus.OK);
     }
 
-    @DeleteMapping(value = "/remove/user/{userid}/product/{productid}",
+    @DeleteMapping(value = "/remove/user/product/{productid}",
         produces = {"application/json"})
     public ResponseEntity<?> removeFromCart(
         @PathVariable
-            long userid,
-        @PathVariable
             long productid)
     {
-        CartItem removeCartItem = cartItemService.removeFromCart(userid,
+        CartItem removeCartItem = cartItemService.removeFromCart(
             productid,
             "I am still not working");
         return new ResponseEntity<>(removeCartItem,

@@ -9,6 +9,8 @@ import com.lambdaschool.shoppingcart.repository.CartItemRepository;
 import com.lambdaschool.shoppingcart.repository.ProductRepository;
 import com.lambdaschool.shoppingcart.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service(value = "cartitemService")
@@ -23,19 +25,20 @@ public class CartItemServiceImpl implements CartItemService
     @Autowired
     private CartItemRepository cartitemrepos;
 
+
+
     @Override
     public CartItem addToCart(
-        long userid,
         long productid,
         String comment)
     {
-        User workingUser = userrepos.findById(userid)
-            .orElseThrow(() -> new ResourceNotFoundException("User id " + userid + " not found!"));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User workingUser = userrepos.findByUsername(authentication.getName());
 
         Product workingProduct = prodrepos.findById(productid)
             .orElseThrow(() -> new ResourceNotFoundException("Product id " + productid + " not found!"));
 
-        CartItem workingCartItem = cartitemrepos.findById(new CartItemId(userid,
+        CartItem workingCartItem = cartitemrepos.findById(new CartItemId(workingUser.getUserid(),
             productid))
             .orElse(new CartItem(workingUser,
                 workingProduct,
@@ -53,17 +56,15 @@ public class CartItemServiceImpl implements CartItemService
 
     @Override
     public CartItem removeFromCart(
-        long userid,
         long productid,
         String comment)
     {
-        User workingUser = userrepos.findById(userid)
-            .orElseThrow(() -> new ResourceNotFoundException("User id " + userid + " not found!"));
+        User workingUser = userrepos.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Product workingProduct = prodrepos.findById(productid)
             .orElseThrow(() -> new ResourceNotFoundException("Product id " + productid + " not found!"));
 
-        CartItem workingCartItem = cartitemrepos.findById(new CartItemId(userid,
+        CartItem workingCartItem = cartitemrepos.findById(new CartItemId(workingUser.getUserid(),
             productid))
             .orElseThrow(() -> new ResourceNotFoundException("Product " + productid + " not found in User's Cart"));
 
@@ -75,7 +76,7 @@ public class CartItemServiceImpl implements CartItemService
 
         if (workingCartItem.getQuantity() <= 0)
         {
-            cartitemrepos.deleteById(new CartItemId(userid,
+            cartitemrepos.deleteById(new CartItemId(workingUser.getUserid(),
                 productid));
             return null;
         } else
